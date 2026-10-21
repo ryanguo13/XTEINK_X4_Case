@@ -1,0 +1,297 @@
+# 技术文档 / Technical Documentation
+
+XTEINK X4 外壳的完整设计推导、几何约束、公差链与实现细节。
+
+---
+
+## 1. 坐标系与基准
+
+设备在 Fusion 中的放置：
+
+```
+X = 宽  69.0 mm   +X = 正面照右手侧（电源 / 翻页 / TF 卡 / RESET）
+Y = 高 114.0 mm   +Y = 顶部
+Z = 厚  5.98 mm   Z=0 = 设备背面, Z=5.98 = 设备正面（屏幕面）
+-X = 正面照左手侧（USB-C / LED / 挂绳孔），三者都在下端同一侧
+```
+
+所有草图以 `P3(x, y, z)` = `(mm × 0.1)` 构造——Fusion API 内部长度单位是 **cm**，
+脚本里 `MM = 0.1` 负责这层换算。任何漏乘 `MM` 的地方都会得到 10 倍大小的几何。
+
+---
+
+## 2. 尺寸来源（照片像素测量）
+
+官方没有公开机械图，全部关键尺寸从 13 张 1199×800 / 1200×800 实拍照片反推，
+测量脚本留在 `ref/*.ps1`、`ref/tmp/*.ps1`（PowerShell + `System.Drawing`，
+WSL 侧无 PIL 可用）。
+
+| 量 | 方法 | 结果 |
+| --- | --- | --- |
+| 机身外廓 | 正视图暗区包围盒 | 69.0 × 114.0 mm |
+| 机身厚度 | 侧视边缘照片 | 5.98 mm |
+| 机身平面圆角 | 角部拟合 | R ≈ 4.0 mm |
+| 有效显示区 | 正视图亮区包围盒 | 55.4 × 92.4 mm（4.3"，≈220 ppi） |
+| 屏幕上边框 | 亮区顶边到机身顶边 | 4.0 – 6.5 mm（取 6.5） |
+| 屏幕下边框 | 亮区底边到机身底边 | 17.7 – 18.0 mm |
+| 正面左胶囊键 | 暗块长宽 | ≈ 24.0 × 2.6 mm |
+| 正面右胶囊键 | 暗块长宽 | ≈ 21.9 × 2.6 mm |
+| 两键间距 | 暗块间隔 | ≈ 1.5 mm（键中心距底边 4.4） |
+| +X 侧四个开孔 | 侧视暗跑段扫描 | 电源短胶囊 / 翻页长摇杆 / TF 卡长槽 / RESET 圆孔 |
+| -X 侧三个开孔 | 端部斜视放大 | USB-C 9.0×3.4 / LED φ1.6 / 挂绳 5.0×3.6 R1.2 |
+| 背面 | 背视图 | 深色装饰板 + XTEINK logo（31 × 5.9 mm）；无摄像头/通风孔/螺钉 |
+
+> 测量误差约 ±1 mm。凡是会直接影响装配的项，脚本 `P` 字典里都标了 `(*)`，
+> 打印前请用卡尺复核。
+
+---
+
+## 3. 结构方案
+
+### 3.1 两件套分工
+
+```
+z=-2.00 ┌──────────────────────────────┐  背板 (2.0 mm)
+        │  全包背壳 X4_back_shell        │
+z= 0.00 │  ↑ 设备坐在这个面上            │
+        │  │ 侧壁 1.8 mm 包住设备四边    │
+z= 4.78 │  └ 前口让位环（剩下 1.0 mm）    │  ← 卡接区重叠 1.20 mm
+        │   ┌─ 裙边 0.70 mm 从外侧扣入    │
+z= 5.98 │   │  前框面板 1.2 mm            │
+z= 7.18 └───┴──────────────────────────────┘  前框 X4_front_frame
+```
+
+- **背壳**：包裹设备背面 + 四个侧面，前口做一圈让位（`rebate_d = 0.80`），
+  让位面上有一圈径向卡槽。
+- **前框**：`skirt_h = 1.20` 的裙边从外侧扣进背壳让位区，裙边上有一圈
+  `ridge_p = 0.35` 的径向卡筋；裙边之上是 1.2 mm 厚面板，面板上开屏幕窗口
+  和两条按键镂空。
+
+### 3.2 卡接公差链
+
+| 层 | 表达式 | 值 |
+| --- | --- | --- |
+| 背壳外形半宽 | `hw + clr + wall` | 34.50 + 0.35 + 1.80 = **36.65** |
+| 内腔半宽 | `hw + clr` | **34.85** |
+| 让位面半宽 | `tub_hw − rebate_d` | 36.65 − 0.80 = **35.85** |
+| 前口环壁厚 | `wall − rebate_d` | 1.80 − 0.80 = **1.00** |
+| 裙边内表面半宽 | `red_hw + skirt_gap` | 35.85 + 0.10 = **35.95** |
+| 裙边厚 | 35.95 − 35.85 = | **0.70** |
+| 卡筋顶半宽 | `in_hw − ridge_p` | 35.95 − 0.35 = **35.60** |
+| 卡槽底半宽 | `red_hw − groove_d` | 35.85 − 0.35 = **35.50** |
+| **径向过盈** | `ridge − skirt_gap − groove` | 0.35 − 0.10 − 0.35 = **0.10** |
+
+0.10 mm 的径向过盈对 FDM（喷嘴 0.4、层高 0.16–0.20）是"扣得上但不会焊死"的
+区间。PLA 有难度的话把 `ridge_p` 改 0.30 → 过盈 0.05（会偏松，建议先用小样试）。
+
+`ridge_z0 = 5.30`、`ridge_z1 = 5.70`：卡筋带中心正好落在设备正面
+（`dev_d = 5.98`）稍下，扣合后裙边不会顶到屏幕。
+
+### 3.3 角部圆角：这是唯一的非平凡约束
+
+外形圆角 `outer_cr` 被 **5 处**引用（背壳主体、前口环带、卡槽环、裙边、
+前框面板），内腔圆角 `inner_cr` 被 **2 处**引用，而让位圆角/裙边圆角都是
+派生量：
+
+```python
+red_cr = P["outer_cr"] - P["rebate_d"]    # 让位圆角
+in_cr  = red_cr + P["skirt_gap"]          # 裙边内圆角
+```
+
+方正化时把 `outer_cr` 从 6.8 直接改小是**危险的**，因为两个关键量
+（角部壁厚、角部设备间隙）都不能按"半宽差"估算——圆角的曲率中心
+在角部互相偏移，必须数值采样真实的最小距离。脚本内置了 `corner_metrics()`：
+
+```python
+def corner_metrics(Ro, Ri, hw, hh, clr, wall, dev_cr, n=720):
+    """角部几何实测: 返回 (角部最小壁厚, 角部设备间隙)。
+    圆角同尺寸矩形的角部不能用"半宽差"算, 必须采样求最小距离。"""
+```
+
+每个圆角采样 181 点（4 角 × 181），取内外轮廓点的最小成对距离。实测：
+
+| `outer_cr` / `inner_cr` | 角部壁厚 | 角部设备间隙 | 结论 |
+| --- | --- | --- | --- |
+| 6.8 / 5.0（**原设计**） | 1.800 mm | **0.081 mm** | 危险：角部几乎贴死设备 |
+| **3.0 / 3.0（采用）** | **2.127 mm** | **0.558 mm** | 更方正 AND 更安全 |
+| 2.5 / 2.5 | 2.162 mm | 0.731 mm | 更安全但已接近直角 |
+| 3.5 / 3.5 | 2.098 mm | 0.438 mm | |
+| 4.0 / 4.0 | 2.074 mm | 0.367 mm | |
+
+**关键洞察**：原设计 `inner_cr = 5.0` 比设备的 `dev_cr = 4.0` 还大，所以内腔
+圆角在角部**切进了设备保留区**，间隙被压缩到 0.08 mm——这是原设计里一个
+潜在的装配风险，方正化 L 反而把它修好了（间隙 → 0.56 mm）。
+
+规律近似：`Ri ≤ dev_cr` 时间隙 ≈ `clr`（0.35）；`Ri > dev_cr` 时按约
+`(Ri − dev_cr) × 0.707` 衰减。
+
+### 3.4 断点：内腔圆角必须跟着变
+
+`inner_cr` 若大于 `dev_cr`，角部间隙会掉到危险区。脚本在 `run()` 里打印实测值：
+
+```
+平面圆角 外 3.00 / 内 3.00 (角部壁厚 2.13, 角部设备间隙 0.56)
+```
+
+改圆角后**必须**看这行；间隙 < 0.15 mm 就该停下来重新算。
+
+---
+
+## 4. 特征清单
+
+### 4.1 背壳 `X4_back_shell`（9 步，158 面）
+
+| # | 特征 | 草图/范围 | 说明 |
+| --- | --- | --- | --- |
+| 1.1 | 外形主体 | `rrect(±tub_hw, ±tub_hh, outer_cr)`，Z −2.00 … 5.98 | 一次拉伸成形 |
+| 1.2 | 外底面倒圆 | `fillet_z_loop` @ z=−2.00, r=0.5 | 整圈，去手感毛刺 |
+| 1.3 | 内腔 | `rrect(±cav_hw, ±cav_hh, inner_cr)`，Z 0 … 5.98 | 底板留 `back_t = 2.0` |
+| 1.4 | 前口让位环 | `ring_prof(red_hw, red_cr → outer_cr+0.5)`，Z z0 … 5.98 | 环壁剩 1.0 |
+| 1.5 | 卡点环槽 | `ring_prof(groove_hw … red_hw+0.5)`，Z 5.30 … 5.70 | 深 0.35 |
+| 1.6 | 背面装饰面板内凹 | `rr_prof(panel_cr)`，自 −2.00 上切 0.50 | 62.6 × 107.6 |
+| 1.7 | 磁吸环槽 | 两个 φ 圆之差，自面板底再下切 0.35 | φ60 / φ57.6 |
+| 1.8 | 4 × 缓冲垫沉台 | `rect_prof` 12×12，深 0.40 | 中心 ±22, ±45 |
+| 1.9 | 侧壁开孔 | 草图在 `yZConstructionPlane`，逐孔切穿 | +X 四个 / −X 三个 |
+
+**1.9 的实现细节**：`yZConstructionPlane` 的草图局部 u/v 与世界 Y/Z **不一致**，
+直接用世界坐标会得到旋转 90° 的孔。`side_map(sk, wx)` 用
+`sk.transform.getAsCoordinateSystem()` 把世界点投影到草图局部坐标：
+
+```python
+def pt(wy, wz):
+    d = adsk.core.Vector3D.create(wx*MM - o.x, wy*MM - o.y, wz*MM - o.z)
+    return adsk.core.Point3D.create(d.dotProduct(xa), d.dotProduct(ya), 0.0)
+```
+
+浅凹台（按键周边的 `side_relief = 0.60`）通过 `off_plane(comp, base, z_mm)`
+在 `sign × (tub_hw − depth)` 处建偏移面，只切 `depth + 3.0` 而不是切穿。
+
+### 4.2 前框 `X4_front_frame`（7 步，85 面）
+
+| # | 特征 | 说明 |
+| --- | --- | --- |
+| 2.1 | 裙边实体 | `rrect(±tub_hw, ±tub_hh, outer_cr)`，Z z0 … 5.98 |
+| 2.2 | 裙边内腔（下带） | Z z0 … 5.30，内轮廓 `in_cr` |
+| 2.3 | 裙边内腔（上带） | Z 5.70 … 5.98，内轮廓 `in_cr` |
+| — | 卡筋带（留在 2.2 与 2.3 之间） | Z 5.30 … 5.70，外轮廓 `tip_hw`，内 `in_cr − ridge_p` |
+| 2.4 | 面板 | Z 5.98 … 7.18，`outer_cr`，与裙边 `JOIN` 成单实体 |
+| 2.5 | 面板顶面倒圆 | `fillet_z_loop` @ z=7.18, r=`frame_top_fillet` (0.4) |
+| 2.6 | 屏幕窗口 | `rr_prof` 56.4 × 93.4, `win_cr` 1.5，Yc = 4.30 |
+| 2.7 | 两条胶囊键镂空 | 长 24.0 / 21.9，高 2.6 + `fk_clr` 0.4，R1.3 |
+
+**2.7 的非对称沉台**：两个键各有一个向外侧的沉台（`kb_d = 0.60`，`kb_clr = 1.0`），
+让设备实键凸起时仍能按到底。左键的沉台在左侧、右键在右侧：
+
+```python
+xo0 = x_cur - P["fk_clr"] - (c if i == 0 else 0.0)
+```
+
+两键之间留 0.7 mm 竖筋（`fk_gap 1.5 − 2×fk_clr 0.4`）。
+
+### 4.3 设备参考体 `X4_device_reference`
+
+仅用于干涉检查，**不打印**，透明度 0.30。四角 `dev_cr = 4.0`。
+
+---
+
+## 5. 干涉检查
+
+`analyzeInterference` 只统计**实体体积重叠**，`isCoincidentFacesIncluded = False`
+（面贴合不算干涉）。三项检查全部为 0：
+
+```
+[interference] X4_back_shell  vs X4_device_reference : 0 处  0.0000 cm3
+[interference] X4_front_frame vs X4_device_reference : 0 处  0.0000 cm3
+[interference] X4_back_shell  vs X4_front_frame      : 0 处  0.0000 cm3
+```
+
+`X4_back_shell` 与 `X4_front_frame` 在 Z 4.78 … 5.98 区间**空间上重叠**
+1.20 mm——那是裙边扣进让位区的设计重叠，因为两者实体本身不交叠（裙边贴
+让位面外侧、内腔是空的），干涉量为 0 属预期。
+
+---
+
+## 6. 实现中踩到的坑
+
+### 6.1 `CutFeatureOperation` 的作用域是**整个设计**，不是当前组件
+
+这是本仓库最有价值的一条。前框 2.2 步切裙边内腔时，轮廓内表面取
+`in_hw = red_hw + skirt_gap = 35.95`；这个半径**同时**也框住了背壳前口环带
+（`cav_hw = 34.85 … red_hw = 35.85`，壁厚仅 1.00 mm）。于是前框的切割
+从背壳环带上咬掉一条，把一个 0.0985 cm³ 的碎片从背壳主体上切了下来。
+
+症状很隐蔽：
+
+- 构建日志看起来全绿（体积、面积、干涉都正常）
+- 只有 `X4_back_shell bodies=2` 且其中一个 `vol=0.000` 才暴露
+- 碎片体积**每次运行都不一样**（0.2039 → 0.0985 cm³），因为是布尔边界的浮点残留
+- STL 导出**看不出来**，因为 `biggest(comp)` 只导最大体积体
+
+修复：`extrude()` 增加 `target` 参数，所有切割显式限定 `participantBodies`：
+
+```python
+def extrude(comp, prof, op, dist_mm, positive=True, name="", target=None):
+    ...
+    if op in (CUT, IntersectFeatureOperation) and target is not None:
+        inp.participantBodies = _oc(target if isinstance(target, (list, tuple)) else [target])
+```
+
+然后**每一处** CUT 都要传：背壳切全部 `target=body`，前框切 `target=skirt` 或
+`target=plate`。少传一处就会复发。
+
+### 6.2 干涉输入不能给空的 ObjectCollection
+
+```python
+# ✗ 抛 RuntimeError: 3 : invalid input collections
+ii = dsn.createInterferenceInput(adsk.core.ObjectCollection.create())
+ic = adsk.core.ObjectCollection.create()
+ic.add(body1); ic.add(body2)
+ii = dsn.createInterferenceInput(ic)   # 这一步之前已经炸了
+```
+
+必须先建集合、装好实体，再传给 `createInterferenceInput`。
+
+### 6.3 `MeshRefinementHigh` + 二进制是必须的
+
+默认导出精度下 φ1.6 的 LED 孔会退化成寡边形。全项目 STL 体积：
+背壳 465 KB、前框 297 KB。
+
+### 6.4 其它小坑
+
+- **`adsk.fusion.BRepBody` 没有 `bodyType` 属性**，判断用 `isSolid` / `isVisible`。
+- **`Design.createInterferenceInput` 之前不能有 `analyzeInterference` 的残留状态**。
+- **PowerShell 脚本里 `Add-Type -AssemblyName System.Drawing` 必须放在 `param(...)` 之后**，
+  否则所有参数默认值报 `The assignment expression is not valid`。
+- **WSL 侧 `urllib` 不认 `no_proxy` 里的 `127.*` 通配符**。本机有
+  `http_proxy=http://127.0.0.1:7890`，于是回环 MCP 请求被送进代理并返回
+  `HTTP Error 502: Bad Gateway`。`dev_run.py` 里显式建了空 ProxyHandler：
+
+  ```python
+  _opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+  _opener.open(req)
+  ```
+
+  （`curl --noproxy '*'` 也能用，但那只是绕过了 curl 自己的代理。）
+
+---
+
+## 7. 验证方法
+
+`x4_verify.py` 在一个已构建好的设计上跑：
+
+1. 逐组件打印 `bodies / volume / bbox` —— **`bodies` 必须为 1**，2 即复发 6.1
+2. 三组干涉检查，必须全部 `0 处 0.0000 cm3`
+3. 导出两个 STL 到 `stl/`
+
+`x4_render_docs.py` 出 12 张白底描边图到 `docs/images/`（1600×1200，
+正/背视图用 900×1400 竖版画幅，避免横版画幅在左右留大片空白）。
+
+---
+
+## 8. 后续可能的改进
+
+- [ ] 磁吸环槽改为真正的磁铁腔（φ60 × 0.5 深 + 4 个 φ8 磁片位）
+- [ ] 侧面开孔按实物卡尺复测后微调（当前 ±1 mm）
+- [ ] 增加一个可选的"前框带实体按键"变体
+- [ ] 加 0.2 mm 的 `elephant foot` 补偿版本
+- [ ] TPU 内衬垫片（防震 + 补 0.35 mm 间隙）

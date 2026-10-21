@@ -1,0 +1,30 @@
+# __pycache__ / 编译产物
+__pycache__/
+*.pyc
+
+# Fusion 本地输出
+*.f3d
+*.f3z
+*.step
+*.stp
+*.iges
+
+# 切片器项目文件（体积大且与个人参数强绑定）
+*.3mf
+*.gcode
+*.bgcode
+*.gco
+
+# 操作系统
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*~
+
+# 旧的调试渲染（已被 docs/images/ 取代）
+shots/
