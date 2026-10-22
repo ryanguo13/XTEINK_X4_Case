@@ -89,12 +89,12 @@ def run(_context):
         print("  %-26s %8d bytes" % (name, os.path.getsize(path)))
 
     # ---- 3. 主图 ----
-    shot("01_hero_iso", V.IsoTopRightViewOrientation, ALL, 178)
-    shot("02_iso_back", V.IsoBottomLeftViewOrientation, ALL, 178)
-    # 正/背视图用竖版画幅: 机身是 69x114 的竖长方形, 横版画幅会在左右浪费大量白边。
-    # viewExtents = 画幅宽度, 取 84 mm → 纵向 84*1400/900 = 131 mm, 刚好裹住 114 mm 机身。
-    shot("03_front", V.FrontViewOrientation, ALL, 84, up=(0, 1, 0), w=900, h=1400)
-    shot("04_back", V.BackViewOrientation, ALL, 84, up=(0, 1, 0), w=900, h=1400)
+    shot("01_hero_iso", V.IsoTopRightViewOrientation, ALL, 185)
+    shot("02_iso_back", V.IsoBottomLeftViewOrientation, ALL, 185)
+    # 正/背视图用竖版画幅: 机身是 73.3x136.3 的竖长方形, 横版画幅会在左右浪费大量白边。
+    # viewExtents = 画幅宽度, 取 92 mm → 纵向 92*1400/900 = 143 mm, 裹住 136.3 mm 机身留 3 mm 边。
+    shot("03_front", V.FrontViewOrientation, ALL, 92, up=(0, 1, 0), w=900, h=1400)
+    shot("04_back", V.BackViewOrientation, ALL, 92, up=(0, 1, 0), w=900, h=1400)
     shot("05_back_shell_inside", V.IsoTopLeftViewOrientation, BK, 172)
     shot("06_back_shell_outside", V.IsoBottomRightViewOrientation, BK, 172)
     shot("07_front_frame_outside", V.IsoBottomRightViewOrientation, FR, 165)

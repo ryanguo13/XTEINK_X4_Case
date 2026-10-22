@@ -14,10 +14,21 @@
 --------------------------------------------------------------------------
 设计说明
 --------------------------------------------------------------------------
-两件套:
-  X4_back_shell   全包背壳: 背板 2.0 + 侧壁 1.8, 前口做 0.8 让位环
-  X4_front_frame  前框: 面板 1.2 + 0.7 裙边, 裙边内侧 0.35 卡筋
-  两者外侧轮廓齐平, 接缝落在侧壁, 卡筋卡进背壳前口的环形卡槽 (径向过盈 0.10)
+两件套 (螺钉固定):
+  X4_back_shell   全包背壳: 背板 2.0 + 侧壁 1.8, 前口做 0.8 让位环,
+                  背面 4 个沉头孔, 前口面 4 个螺母柱让位腔
+  X4_front_frame  前框: 面板 1.2 + 0.7 裙边, 裙边内侧 0.35 定位筋,
+                  内侧 4 个 Ø5.6 螺母柱 (嵌 M3*4*3 热熔螺母)
+  两者外侧轮廓齐平, 接缝落在侧壁; 定位筋只做对中 (0.02 间隙, 不再过盈),
+  夹紧完全由 4 颗 M3*6 从背面拧入的螺钉提供。
+
+为什么上下要加长:
+  设备只有 114 mm 高, 螺纹柱 + 螺母孔在 Z 向要占 4.6 mm, 而原设计上下边框
+  只有 2.15 mm 壁厚 (设备顶边到外形边)。直接在 2.15 里挖会让侧壁只剩 ~0.3,
+  所以改为上下加长: 上 +8.0 (设备顶边到外形顶边 2.15 -> 10.15),
+  下 +10.0 (设备底边到外形底边 2.15 -> 12.15),
+  加长段的背壳正好是实心厚板, 天然可做螺钉肩台。
+  上限定: 上拉 7.0 时 Ø6.2 让位腔到前口让位台阶只剩 0.25 壁, 所以取 8.0。
 
 风格: 方正工业风 —— 外形以直角为主, 只保留 3.0 mm 小圆角; 所有开孔避让保持利落,
       孔口不做倒角, 只做 0.5 外形圆角。
@@ -33,7 +44,7 @@
     改 Ro/Ri 后必须重跑本脚本看 [干涉] 一行是否为 OK。
 按钮: 按需求"不做造型, 直接镂空"。电源键/翻页键所在的侧壁外表面另铣 0.6 浅凹台,
       手指可直接按到设备实体按键; 正面两条胶囊键同样直接开出贯穿窗口。
-背面: 62.6 x 107.6 装饰面板内凹 0.5, 中心 φ60 磁吸环槽再下切 0.35,
+背面: 62.6 x 120.0 装饰面板内凹 0.5 (Y 中心移到 -1.0), 中心 φ60 磁吸环槽再下切 0.35,
       磁环落位后上方余料 1.15 mm。
 
 坐标系 (设备中心为原点):
@@ -70,14 +81,34 @@ P = dict(
     outer_cr=3.0,        # 外形平面内圆角 (方正化: 6.8 -> 3.0)
     inner_cr=3.0,        # 内腔圆角     (方正化: 5.0 -> 3.0, 角部壁厚 2.13 / 设备间隙 0.56)
 
-    # ---------------- 两件套卡接 ----------------
+    # ---------------- 上下加长 (给螺钉/螺母腾位置) ----------------
+    ext_top=8.00,        # (*) 上边框 2.15 -> 10.15 (7.0 时 Ø6.2 让位腔到让位台阶只剩 0.25)
+    ext_bot=10.00,       # (*) 下边框 2.15 -> 12.15
+
+    # ---------------- 两件套定位 (卡筋只对中, 不夹紧) ----------------
     rebate_d=0.80,       # 背壳前口让位(前口环壁剩下的厚度 = wall - rebate_d = 1.0)
     skirt_gap=0.10,      # 裙边内表面与让位面径向间隙
     skirt_h=1.20,        # 裙边高度
-    ridge_p=0.35,        # 裙边卡筋径向凸出
-    groove_d=0.35,       # 背壳卡槽径向深度 (过盈 = ridge_p - skirt_gap - groove_d = 0.10)
-    ridge_z0=5.30,       # 卡筋/卡槽 Z 起
-    ridge_z1=5.70,       # 卡筋/卡槽 Z 止
+    ridge_p=0.35,        # 裙边定位筋径向凸出
+    ridge_clear=0.02,    # 定位筋与卡槽的单边间隙 (去掉原来的 0.10 过盈)
+    ridge_z0=5.30,       # 定位筋/卡槽 Z 起
+    ridge_z1=5.70,       # 定位筋/卡槽 Z 止
+
+    # ---------------- 4 x M3 螺钉 (从背面进, 前框嵌热熔螺母) ----------------
+    #   螺钉穿过背壳加长段 -> 前框螺母柱 -> 热熔螺母; 背壳上只做通孔+沉头
+    screw_x=21.50,       # 螺钉 X 位置 (±)
+    screw_y_top=61.85,   # 上 2 颗 Y (上下边框带 57.35..66.35 居中, 让位腔两侧各留 1.4)
+    screw_y_bot=-62.85,  # 下 2 颗 Y (边框带 -68.35..-57.35 居中)
+    screw_d=3.40,        # M3 通孔
+    screw_head_d=6.20,   # 沉头孔径 (M3 圆头 Ø5.7 / 内六角 Ø5.5)
+    screw_head_dp=1.80,  # 沉头深度 (M3 圆头高 1.65, 留 0.15 余量)
+    boss_d=5.60,         # 前框螺母柱外径 (螺母 Ø4.0, 壁厚 0.8)
+    boss_r_recess=0.30,  # 背壳让位腔比螺母柱大的单边余量 (让位腔 Ø6.2)
+    nut_hole_d=3.80,     # 热熔螺母底孔 (M3*4*3 螺母 Ø4.0 -> 过盈 0.2)
+    nut_hole_dp=4.20,    # 底孔深 (螺母长 3.0 + 1.2 容熔料)
+    boss_z0=1.90,        # 螺母柱底面 Z (柱体朝下伸进背壳让位腔)
+    boss_z1=6.90,        # 螺母柱顶面 Z (扎进面板 0.92, 打印时从面板往上长)
+    relief_floor=1.70,   # 背壳让位腔底 Z (比柱底再低 0.2)
 
     # ---------------- 屏幕窗口 ----------------
     scr_w=55.4, scr_h=92.4,     # 4.3" 480x800 @ ~220ppi 有效显示区
@@ -104,7 +135,8 @@ P = dict(
     lany_cr=1.2,
 
     # ---------------- 背面 ----------------
-    panel_w=62.6, panel_h=107.6, panel_cr=1.5, panel_depth=0.50,
+    #   加长后外形中心下移 2.0 (s_cy), 装饰面板与磁吸环跟着走, 上下留边才对称
+    panel_w=62.6, panel_h=120.0, panel_cr=1.5, panel_depth=0.50,
     ring_od=60.0, ring_id=57.6, ring_depth=0.35,     # 磁吸环 (φ60 环, 2.4 宽)
 
     # ---------------- 正面按键沉台 (让按键浅陷 0.6, 保证按键凸起时仍可按) ----------------
@@ -244,6 +276,16 @@ def ring_prof(sk, hw_in, hh_in, r_in, hw_out, hh_out, r_out, tag=""):
     return pick_profile(sk, a, tag)
 
 
+def ring2_prof(sk, hw_out, y0_out, y1_out, r_out,
+               hw_in, y0_in, y1_in, r_in, tag=""):
+    """环形轮廓, 但 Y 方向上下边界独立给 (上下加长后外形不再 Y 对称)。"""
+    rrect(sk, -hw_out, y0_out, hw_out, y1_out, r_out)
+    rrect(sk, -hw_in, y0_in, hw_in, y1_in, r_in)
+    a = rrect_area(-hw_out, y0_out, hw_out, y1_out, r_out) - \
+        rrect_area(-hw_in, y0_in, hw_in, y1_in, r_in)
+    return pick_profile(sk, a, tag)
+
+
 def circle_prof(sk, cx, cy, d, tag=""):
     sk.sketchCurves.sketchCircles.addByCenterRadius(P3(cx, cy), d / 2.0 * MM)
     return pick_profile(sk, math.pi * (d / 2.0) ** 2, tag)
@@ -278,7 +320,8 @@ def extrude(comp, prof, op, dist_mm, positive=True, name="", target=None):
     """
     ex = comp.features.extrudeFeatures
     inp = ex.createInput(prof, op)
-    if target is not None and op in (CUT, adsk.fusion.FeatureOperations.IntersectFeatureOperation):
+    if target is not None and op in (CUT, JOIN,
+                                     adsk.fusion.FeatureOperations.IntersectFeatureOperation):
         # 注意: participantBodies 的正确类型是 list[BRepBody]，不是 ObjectCollection
         # （传 ObjectCollection 会报 TypeError: argument 2 of type 'std::vector<...>'）
         inp.participantBodies = list(target if isinstance(target, (list, tuple)) else [target])
@@ -351,25 +394,40 @@ def run(_context: str):
     zf = D                                        # 前框面板起始 Z
     tub_hw = hw + P["clr"] + P["wall"]            # 壳体外形半宽
     tub_hh = hh + P["clr"] + P["wall"]
+    # 上下加长只加在壁区 (内腔仍是设备尺寸), 所以 Y 不再对称 -> 显式上下边界
+    s_y1 = tub_hh + P["ext_top"]                 # 外形上边
+    s_y0 = -(tub_hh + P["ext_bot"])              # 外形下边
+    s_cy = (s_y0 + s_y1) / 2.0                   # 外形 Y 中心 (背面装饰件跟着走)
     cav_hw, cav_hh = hw + P["clr"], hh + P["clr"] # 内腔半尺寸
     red_hw = tub_hw - P["rebate_d"]               # 前口让位面半宽
     red_hh = tub_hh - P["rebate_d"]
+    red_y1 = s_y1 - P["rebate_d"]
+    red_y0 = s_y0 + P["rebate_d"]
     red_cr = P["outer_cr"] - P["rebate_d"]
-    z0 = zf - P["skirt_h"]                        # 裙边/卡筋 起始 Z
+    z0 = zf - P["skirt_h"]                        # 裙边/定位筋 起始 Z
     in_hw = red_hw + P["skirt_gap"]               # 裙边内表面
     in_hh = red_hh + P["skirt_gap"]
+    in_y1 = red_y1 + P["skirt_gap"]
+    in_y0 = red_y0 - P["skirt_gap"]
     in_cr = red_cr + P["skirt_gap"]
-    tip_hw = in_hw - P["ridge_p"]                 # 卡筋内顶点
-    tip_hh = in_hh - P["ridge_p"]
-    groove_hw = red_hw - P["groove_d"]            # 卡槽底 (径向)
-    groove_hh = red_hh - P["groove_d"]
+    tip_hw = in_hw - P["ridge_p"]                 # 定位筋内顶点
+    tip_y1 = in_y1 - P["ridge_p"]
+    tip_y0 = in_y0 + P["ridge_p"]
+    # 槽深: 筋尖在 in_hw-ridge_p, 槽底在 red_hw-groove_d, 两者留 ridge_clear
+    #   间隙 = (in_hw-ridge_p) - (red_hw-groove_d) = groove_d - ridge_p + skirt_gap
+    #   所以 groove_d = ridge_p - skirt_gap + ridge_clear
+    groove_d = P["ridge_p"] - P["skirt_gap"] + P["ridge_clear"]
+    groove_hw = red_hw - groove_d                 # 卡槽底 (径向)
+    groove_y1 = red_y1 - groove_d
+    groove_y0 = red_y0 + groove_d
 
     print("")
-    print("  外形    %.2f x %.2f x %.2f mm" % (2 * tub_hw, 2 * tub_hh, P["back_t"] + D + P["frame_t"]))
+    print("  外形    %.2f x %.2f x %.2f mm  (Y %.2f .. %.2f)" % (
+        2 * tub_hw, s_y1 - s_y0, P["back_t"] + D + P["frame_t"], s_y0, s_y1))
     print("  内腔    %.2f x %.2f x %.2f mm" % (2 * cav_hw, 2 * cav_hh, D))
-    print("  前口环壁 %.2f | 裙边厚 %.2f | 卡筋径向过盈 %.2f | 磁环上方余料 %.2f" % (
-        red_hw - cav_hw, tub_hw - in_hw,
-        tip_hw - groove_hw, P["back_t"] - P["panel_depth"] - P["ring_depth"]))
+    print("  前口环壁 %.2f | 裙边厚 %.2f | 定位筋槽深 %.2f / 间隙 %.2f | 磁环上方余料 %.2f" % (
+        red_hw - cav_hw, tub_hw - in_hw, groove_d, P["ridge_clear"],
+        P["back_t"] - P["panel_depth"] - P["ring_depth"]))
     print("  平面圆角 外 %.2f / 内 %.2f (角部壁厚 %.2f, 角部设备间隙 %.2f)" % (
         P["outer_cr"], P["inner_cr"],
         *corner_metrics(P["outer_cr"], P["inner_cr"], hw, hh,
@@ -383,9 +441,9 @@ def run(_context: str):
     back.name = "X4_back_shell"
     print("[1] 全包背壳")
 
-    # 1.1 外形主体 Z: -back_t .. dev_d
+    # 1.1 外形主体 Z: -back_t .. dev_d  (Y 上下不对称)
     sk = back.sketches.add(back.xYConstructionPlane)
-    rrect(sk, -tub_hw, -tub_hh, tub_hw, tub_hh, P["outer_cr"])
+    rrect(sk, -tub_hw, s_y0, tub_hw, s_y1, P["outer_cr"])
     body = extrude_two(back, pick_profile(sk, tag="outer_solid"), NEW,
                        zf, P["back_t"], "back_shell_body").bodies.item(0)
     body.name = "back_shell"
@@ -398,32 +456,33 @@ def run(_context: str):
     rrect(sk, -cav_hw, -cav_hh, cav_hw, cav_hh, P["inner_cr"])
     extrude(back, pick_profile(sk, tag="cavity"), CUT, FAR, True, "cavity", target=body)
 
-    # 1.4 前口让位: 只切外圈环带 (red_hw .. 外形+2), Z: z0..zf
+    # 1.4 前口让位: 只切外圈环带 (red .. 外形+2), Z: z0..zf
     pl = off_plane(back, back.xYConstructionPlane, z0)
     sk = back.sketches.add(pl)
-    pr = ring_prof(sk, red_hw, red_hh, red_cr,
-                   tub_hw + 2, tub_hh + 2, P["outer_cr"] + 0.5, "front_rebate")
+    pr = ring2_prof(sk, tub_hw + 2, s_y0 - 2, s_y1 + 2, P["outer_cr"] + 0.5,
+                    red_hw, red_y0, red_y1, red_cr, "front_rebate")
     extrude(back, pr, CUT, FAR, True, "front_rebate", target=body)
 
-    # 1.5 卡点环槽: 让位面再多吃 groove_d, Z: ridge_z0..ridge_z1
+    # 1.5 定位筋环槽: 让位面再多吃 groove_d, Z: ridge_z0..ridge_z1
+    #     槽深 = ridge_p - skirt_gap - ridge_clear -> 与筋条单边留 0.02, 不再过盈
     pl = off_plane(back, back.xYConstructionPlane, P["ridge_z0"])
     sk = back.sketches.add(pl)
-    pr = ring_prof(sk, groove_hw, groove_hh, red_cr - P["groove_d"],
-                   tub_hw + 2, tub_hh + 2, P["outer_cr"] + 0.5, "snap_groove")
-    extrude(back, pr, CUT, P["ridge_z1"] - P["ridge_z0"], True, "snap_groove", target=body)
+    pr = ring2_prof(sk, tub_hw + 2, s_y0 - 2, s_y1 + 2, P["outer_cr"] + 0.5,
+                    groove_hw, groove_y0, groove_y1, red_cr - groove_d, "align_groove")
+    extrude(back, pr, CUT, P["ridge_z1"] - P["ridge_z0"], True, "align_groove", target=body)
 
-    # 1.6 背面装饰面板内凹 (自外底面往上 panel_depth)
+    # 1.6 背面装饰面板内凹 (自外底面往上 panel_depth), 中心跟外形中心 s_cy 走
     pl = off_plane(back, back.xYConstructionPlane, -P["back_t"])
     sk = back.sketches.add(pl)
-    pr = rr_prof(sk, -P["panel_w"] / 2, -P["panel_h"] / 2,
-                 P["panel_w"] / 2, P["panel_h"] / 2, P["panel_cr"], "back_panel")
+    pr = rr_prof(sk, -P["panel_w"] / 2, s_cy - P["panel_h"] / 2,
+                 P["panel_w"] / 2, s_cy + P["panel_h"] / 2, P["panel_cr"], "back_panel")
     extrude(back, pr, CUT, P["panel_depth"], True, "back_panel", target=body)
 
     # 1.7 磁吸环槽 (自面板底再下切 ring_depth)
     pl = off_plane(back, back.xYConstructionPlane, -P["back_t"] + P["panel_depth"])
     sk = back.sketches.add(pl)
-    sk.sketchCurves.sketchCircles.addByCenterRadius(P3(0, 0), P["ring_od"] / 2.0 * MM)
-    sk.sketchCurves.sketchCircles.addByCenterRadius(P3(0, 0), P["ring_id"] / 2.0 * MM)
+    sk.sketchCurves.sketchCircles.addByCenterRadius(P3(0, s_cy), P["ring_od"] / 2.0 * MM)
+    sk.sketchCurves.sketchCircles.addByCenterRadius(P3(0, s_cy), P["ring_id"] / 2.0 * MM)
     a_ring = math.pi * ((P["ring_od"] / 2.0) ** 2 - (P["ring_id"] / 2.0) ** 2)
     extrude(back, pick_profile(sk, a_ring, "ring_groove"), CUT, P["ring_depth"], True,
             "ring_groove", target=body)
@@ -475,6 +534,28 @@ def run(_context: str):
     side(P["led_y"], 0, 0, -1, "led_hole", circle_d=P["led_d"])
     side(P["lany_y"], P["lany_w"], P["lany_h"], -1, "lanyard", arc_r=P["lany_cr"])
 
+    # 1.10 4 个螺钉孔 (从背面进): 沉头 + 通孔
+    #      通孔只穿到让位腔底 relief_floor, 再上去就是前框螺母柱的位置
+    for sx in (-1, 1):
+        for yc in (P["screw_y_top"], P["screw_y_bot"]):
+            xc = sx * P["screw_x"]
+            # 通孔 Ø3.4
+            sk = back.sketches.add(off_plane(back, back.xYConstructionPlane, -P["back_t"]))
+            pr = circle_prof(sk, xc, yc, P["screw_d"], "screw_through")
+            extrude(back, pr, CUT, P["relief_floor"] + P["back_t"], True,
+                    "screw_through", target=body)
+            # 沉头 Ø6.2 x 1.8
+            sk = back.sketches.add(off_plane(back, back.xYConstructionPlane, -P["back_t"]))
+            pr = circle_prof(sk, xc, yc, P["screw_head_d"], "screw_cb")
+            extrude(back, pr, CUT, P["screw_head_dp"], True, "screw_counterbore", target=body)
+            # 螺母柱让位腔 Ø6.2, 自前口面向下
+            pl = off_plane(back, back.xYConstructionPlane, zf)
+            sk = back.sketches.add(pl)
+            pr = circle_prof(sk, xc, yc, P["boss_d"] + 2 * P["boss_r_recess"], "boss_relief")
+            extrude(back, pr, CUT, zf - P["relief_floor"], False, "boss_relief", target=body)
+    print("  螺钉孔 4 处: X ±%.2f  Y %.2f / %.2f" % (
+        P["screw_x"], P["screw_y_top"], P["screw_y_bot"]))
+
     print("  背壳完成  体积 %.2f cm3" % body.volume)
 
     # ========================================================================
@@ -486,25 +567,25 @@ def run(_context: str):
 
     # 2.1 裙边实体 Z: z0..zf
     sk = fr.sketches.add(off_plane(fr, fr.xYConstructionPlane, z0))
-    rrect(sk, -tub_hw, -tub_hh, tub_hw, tub_hh, P["outer_cr"])
+    rrect(sk, -tub_hw, s_y0, tub_hw, s_y1, P["outer_cr"])
     skirt = extrude(fr, pick_profile(sk, tag="skirt"), NEW, P["skirt_h"], True, "skirt").bodies.item(0)
 
-    # 2.2 裙边内腔: 卡筋带以外全掏空
+    # 2.2 裙边内腔: 定位筋带以外全掏空
     #     target=skirt: 否则切削会越界咬到背壳前口环壁 (见 extrude() 注释)
     for zlo, zhi, lab in ((z0, P["ridge_z0"], "skirt_lo"), (P["ridge_z1"], zf, "skirt_hi")):
         sk = fr.sketches.add(off_plane(fr, fr.xYConstructionPlane, zlo))
-        rrect(sk, -in_hw, -in_hh, in_hw, in_hh, in_cr)
+        rrect(sk, -in_hw, in_y0, in_hw, in_y1, in_cr)
         extrude(fr, pick_profile(sk, tag=lab), CUT, zhi - zlo, True, lab, target=skirt)
 
-    # 2.3 卡筋带: 只留 tip_hw..in_hw 一圈
+    # 2.3 定位筋带: 只留 tip..in 一圈
     sk = fr.sketches.add(off_plane(fr, fr.xYConstructionPlane, P["ridge_z0"]))
-    rrect(sk, -tip_hw, -tip_hh, tip_hw, tip_hh, in_cr - P["ridge_p"])
+    rrect(sk, -tip_hw, tip_y0, tip_hw, tip_y1, in_cr - P["ridge_p"])
     extrude(fr, pick_profile(sk, tag="ridge_band"), CUT, P["ridge_z1"] - P["ridge_z0"], True,
             "ridge_band", target=skirt)
 
     # 2.4 面板 Z: zf..zf+frame_t, 与裙边并成一个实体
     sk = fr.sketches.add(off_plane(fr, fr.xYConstructionPlane, zf))
-    rrect(sk, -tub_hw, -tub_hh, tub_hw, tub_hh, P["outer_cr"])
+    rrect(sk, -tub_hw, s_y0, tub_hw, s_y1, P["outer_cr"])
     plate = extrude(fr, pick_profile(sk, tag="plate"), NEW, P["frame_t"], True, "plate").bodies.item(0)
     ci = fr.features.combineFeatures.createInput(plate, _oc([skirt]))
     ci.operation = JOIN
@@ -513,7 +594,25 @@ def run(_context: str):
     # 2.5 外顶面整圈倒圆
     fillet_z_loop(fr, plate, zf + P["frame_t"], P["frame_top_fillet"], "frame_top")
 
-    # 2.6 屏幕窗口
+    # 2.6 4 个螺母柱 (Ø5.6): 从面板向下伸进背壳让位腔, 内嵌 M3*4*3 热熔螺母
+    #     柱底到 1.9 是因为背壳在那里已经挖空 (relief_floor=1.7), 再多就顶到背板
+    for sx in (-1, 1):
+        for yc in (P["screw_y_top"], P["screw_y_bot"]):
+            xc = sx * P["screw_x"]
+            sk = fr.sketches.add(off_plane(fr, fr.xYConstructionPlane, P["boss_z0"]))
+            pr = circle_prof(sk, xc, yc, P["boss_d"], "boss")
+            b = extrude(fr, pr, NEW, P["boss_z1"] - P["boss_z0"], True, "boss").bodies.item(0)
+            ci = fr.features.combineFeatures.createInput(plate, _oc([b]))
+            ci.operation = JOIN
+            fr.features.combineFeatures.add(ci)
+            # 螺母底孔 Ø3.8 x 4.2 (自柱底向上, 留 1.1 顶壁)
+            sk = fr.sketches.add(off_plane(fr, fr.xYConstructionPlane, P["boss_z0"]))
+            pr = circle_prof(sk, xc, yc, P["nut_hole_d"], "nut_hole")
+            extrude(fr, pr, CUT, P["nut_hole_dp"], True, "nut_hole", target=plate)
+    print("  螺母柱 4 处: Ø%.1f  x  Z %.2f..%.2f, 底孔 Ø%.1f x %.1f" % (
+        P["boss_d"], P["boss_z0"], P["boss_z1"], P["nut_hole_d"], P["nut_hole_dp"]))
+
+    # 2.7 屏幕窗口
     wwin = P["scr_w"] + 2 * P["win_clr"]
     hwin = P["scr_h"] + 2 * P["win_clr"]
     y_c = (hh - P["scr_top"]) - P["scr_h"] / 2.0
@@ -523,7 +622,7 @@ def run(_context: str):
     print("  屏幕窗口 %.2f x %.2f  Yc=%.2f  上边框 %.1f / 下边框 %.1f" % (
         wwin, hwin, y_c, hh - (y_c + hwin / 2), (y_c - hwin / 2) + hh))
 
-    # 2.7 正面两条胶囊按键镂空
+    # 2.8 正面两条胶囊按键镂空
     yk = -hh + P["fk_yc"]
     kh = P["fk_h"] + 2 * P["fk_clr"]
     x_cur = -(P["fk1_len"] + P["fk_gap"] + P["fk2_len"]) / 2.0
@@ -577,7 +676,12 @@ def run(_context: str):
             ii = dsn.createInterferenceInput(ic)
             ii.isCoincidentFacesIncluded = False
             res = dsn.analyzeInterference(ii)
-            tot = sum(res.item(k).volume for k in range(res.count))
+            tot = 0.0
+            for k in range(res.count):
+                try:
+                    tot += abs(res.item(k).interferenceBody.volume)
+                except Exception:
+                    tot += 1e-4        # 拿不到体积也算一处
             print("    [干涉] %-26s %d 处  %.5f cm3%s" % (
                 tag, res.count, tot, "  <— 需修正" if tot > 1e-5 else "  OK"))
         except Exception as e:
@@ -609,7 +713,7 @@ def run(_context: str):
     print("")
     print("DONE  X4_back_shell + X4_front_frame (+ X4_device_reference)")
     print("     设备放入后总厚 %.2f mm, 外形 %.2f x %.2f mm" % (
-        P["back_t"] + D + P["frame_t"], 2 * tub_hw, 2 * tub_hh))
+        P["back_t"] + D + P["frame_t"], 2 * tub_hw, s_y1 - s_y0))
 
 
 def biggest(comp):
