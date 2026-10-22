@@ -18,17 +18,19 @@
   X4_back_shell   全包背壳: 背板 2.0 + 侧壁 1.8, 前口做 0.8 让位环,
                   背面 4 个沉头孔, 前口面 4 个螺母柱让位腔
   X4_front_frame  前框: 面板 1.2 + 0.7 裙边, 裙边内侧 0.35 定位筋,
-                  内侧 4 个 Ø5.6 螺母柱 (嵌 M3*4*3 热熔螺母)
+                  内侧 4 个 12 x 10 扁平凸台 (壁厚 >=3, 嵌 M3*4*3 螺母)
   两者外侧轮廓齐平, 接缝落在侧壁; 定位筋只做对中 (0.02 间隙, 不再过盈),
   夹紧完全由 4 颗 M3*6 从背面拧入的螺钉提供。
 
 为什么上下要加长:
   设备只有 114 mm 高, 螺纹柱 + 螺母孔在 Z 向要占 4.6 mm, 而原设计上下边框
   只有 2.15 mm 壁厚 (设备顶边到外形边)。直接在 2.15 里挖会让侧壁只剩 ~0.3,
-  所以改为上下加长: 上 +8.0 (设备顶边到外形顶边 2.15 -> 10.15),
-  下 +10.0 (设备底边到外形底边 2.15 -> 12.15),
+  所以改为上下加长: 上 +10.5 (设备顶边到外形顶边 2.15 -> 12.65),
+  下 +10.5 (设备底边到外形底边 2.15 -> 12.65),
   加长段的背壳正好是实心厚板, 天然可做螺钉肩台。
-  上限定: 上拉 7.0 时 Ø6.2 让位腔到前口让位台阶只剩 0.25 壁, 所以取 8.0。
+  加长的真正约束是嘉立创代嵌要求: 螺母孔周围壁厚 >= 3 mm, 所以凸台做成
+  12 x 10 (最窄处 10/2 - 3.9/2 = 3.05 > 3.0); 再加让位间隙和定位筋槽,
+  上下边框带各要 12.65, 比原 2.15 各加 10.5。
 
 风格: 方正工业风 —— 外形以直角为主, 只保留 3.0 mm 小圆角; 所有开孔避让保持利落,
       孔口不做倒角, 只做 0.5 外形圆角。
@@ -82,8 +84,8 @@ P = dict(
     inner_cr=3.0,        # 内腔圆角     (方正化: 5.0 -> 3.0, 角部壁厚 2.13 / 设备间隙 0.56)
 
     # ---------------- 上下加长 (给螺钉/螺母腾位置) ----------------
-    ext_top=8.00,        # (*) 上边框 2.15 -> 10.15 (7.0 时 Ø6.2 让位腔到让位台阶只剩 0.25)
-    ext_bot=10.00,       # (*) 下边框 2.15 -> 12.15
+    ext_top=10.50,       # (*) 上边框 2.15 -> 12.65 (受 12x10 凸台 + 3mm 壁厚约束)
+    ext_bot=10.50,       # (*) 下边框 2.15 -> 12.65 (与上对称, 螺钉 Y 才对称)
 
     # ---------------- 两件套定位 (卡筋只对中, 不夹紧) ----------------
     rebate_d=0.80,       # 背壳前口让位(前口环壁剩下的厚度 = wall - rebate_d = 1.0)
@@ -97,15 +99,17 @@ P = dict(
     # ---------------- 4 x M3 螺钉 (从背面进, 前框嵌热熔螺母) ----------------
     #   螺钉穿过背壳加长段 -> 前框螺母柱 -> 热熔螺母; 背壳上只做通孔+沉头
     screw_x=21.50,       # 螺钉 X 位置 (±)
-    screw_y_top=61.85,   # 上 2 颗 Y (上下边框带 57.35..66.35 居中, 让位腔两侧各留 1.4)
-    screw_y_bot=-62.85,  # 下 2 颗 Y (边框带 -68.35..-57.35 居中)
+    screw_y_top=62.65,   # 上 2 颗 Y (凸台 10 高, 下缘 57.65 距内腔 0.30)
+    screw_y_bot=-62.65,  # 下 2 颗 Y (与上对称)
     screw_d=3.40,        # M3 通孔
     screw_head_d=6.20,   # 沉头孔径 (M3 圆头 Ø5.7 / 内六角 Ø5.5)
     screw_head_dp=1.80,  # 沉头深度 (M3 圆头高 1.65, 留 0.15 余量)
-    boss_d=5.60,         # 前框螺母柱外径 (螺母 Ø4.0, 壁厚 0.8)
-    boss_r_recess=0.30,  # 背壳让位腔比螺母柱大的单边余量 (让位腔 Ø6.2)
-    nut_hole_d=3.80,     # 热熔螺母底孔 (M3*4*3 螺母 Ø4.0 -> 过盈 0.2)
-    nut_hole_dp=4.20,    # 底孔深 (螺母长 3.0 + 1.2 容熔料)
+    nut_pad_w=12.00,     # 螺母凸台宽 X (嘉立创代嵌: 孔周壁厚 >= 3)
+    nut_pad_h=10.00,     # 螺母凸台高 Y (最窄处 5.00 - 1.95 = 3.05 mm)
+    nut_pad_cr=2.00,     # 凸台平面圆角
+    nut_pad_margin=0.30, # 背壳让位腔比凸台大的单边余量
+    nut_hole_d=3.90,     # 螺母底孔 (嘉立创代嵌口径; 自嵌热熔用 3.80)
+    nut_hole_dp=4.00,    # 底孔深 (顶壁 1.00)
     boss_z0=1.90,        # 螺母柱底面 Z (柱体朝下伸进背壳让位腔)
     boss_z1=6.90,        # 螺母柱顶面 Z (扎进面板 0.92, 打印时从面板往上长)
     relief_floor=1.70,   # 背壳让位腔底 Z (比柱底再低 0.2)
@@ -136,7 +140,7 @@ P = dict(
 
     # ---------------- 背面 ----------------
     #   加长后外形中心下移 2.0 (s_cy), 装饰面板与磁吸环跟着走, 上下留边才对称
-    panel_w=62.6, panel_h=120.0, panel_cr=1.5, panel_depth=0.50,
+    panel_w=62.6, panel_h=116.0, panel_cr=1.5, panel_depth=0.50,
     ring_od=60.0, ring_id=57.6, ring_depth=0.35,     # 磁吸环 (φ60 环, 2.4 宽)
 
     # ---------------- 正面按键沉台 (让按键浅陷 0.6, 保证按键凸起时仍可按) ----------------
@@ -551,7 +555,11 @@ def run(_context: str):
             # 螺母柱让位腔 Ø6.2, 自前口面向下
             pl = off_plane(back, back.xYConstructionPlane, zf)
             sk = back.sketches.add(pl)
-            pr = circle_prof(sk, xc, yc, P["boss_d"] + 2 * P["boss_r_recess"], "boss_relief")
+            bw = P["nut_pad_w"] / 2.0 + P["nut_pad_margin"]
+            bh_lo = P["nut_pad_h"] / 2.0 + P["nut_pad_margin"] + 0.20   # 向下多挖 0.2, 与内腔连成一体
+            bh_hi = P["nut_pad_h"] / 2.0 + P["nut_pad_margin"]
+            pr = rr_prof(sk, xc - bw, yc - bh_lo, xc + bw, yc + bh_hi,
+                         P["nut_pad_cr"] + P["nut_pad_margin"], "boss_relief")
             extrude(back, pr, CUT, zf - P["relief_floor"], False, "boss_relief", target=body)
     print("  螺钉孔 4 处: X ±%.2f  Y %.2f / %.2f" % (
         P["screw_x"], P["screw_y_top"], P["screw_y_bot"]))
@@ -594,23 +602,25 @@ def run(_context: str):
     # 2.5 外顶面整圈倒圆
     fillet_z_loop(fr, plate, zf + P["frame_t"], P["frame_top_fillet"], "frame_top")
 
-    # 2.6 4 个螺母柱 (Ø5.6): 从面板向下伸进背壳让位腔, 内嵌 M3*4*3 热熔螺母
-    #     柱底到 1.9 是因为背壳在那里已经挖空 (relief_floor=1.7), 再多就顶到背板
+    # 2.6 4 个螺母凸台 (12 x 10 扁平): 从面板向下伸进背壳让位腔, 嵌 M3*4*3 螺母
+    #     凸台底到 1.9 是因为背壳在那里已经挖空 (relief_floor=1.7), 再多就顶到背板
+    #     12 x 10 是为了满足嘉立创代嵌的孔周壁厚 >= 3 mm
+    nw, nh = P["nut_pad_w"] / 2.0, P["nut_pad_h"] / 2.0
     for sx in (-1, 1):
         for yc in (P["screw_y_top"], P["screw_y_bot"]):
             xc = sx * P["screw_x"]
             sk = fr.sketches.add(off_plane(fr, fr.xYConstructionPlane, P["boss_z0"]))
-            pr = circle_prof(sk, xc, yc, P["boss_d"], "boss")
+            pr = rr_prof(sk, xc - nw, yc - nh, xc + nw, yc + nh, P["nut_pad_cr"], "boss")
             b = extrude(fr, pr, NEW, P["boss_z1"] - P["boss_z0"], True, "boss").bodies.item(0)
             ci = fr.features.combineFeatures.createInput(plate, _oc([b]))
             ci.operation = JOIN
             fr.features.combineFeatures.add(ci)
-            # 螺母底孔 Ø3.8 x 4.2 (自柱底向上, 留 1.1 顶壁)
+            # 螺母底孔 Ø3.9 x 4.0 (自凸台底向上, 留 1.0 顶壁)
             sk = fr.sketches.add(off_plane(fr, fr.xYConstructionPlane, P["boss_z0"]))
             pr = circle_prof(sk, xc, yc, P["nut_hole_d"], "nut_hole")
             extrude(fr, pr, CUT, P["nut_hole_dp"], True, "nut_hole", target=plate)
-    print("  螺母柱 4 处: Ø%.1f  x  Z %.2f..%.2f, 底孔 Ø%.1f x %.1f" % (
-        P["boss_d"], P["boss_z0"], P["boss_z1"], P["nut_hole_d"], P["nut_hole_dp"]))
+    print("  螺母凸台 4 处: %.1f x %.1f  x  Z %.2f..%.2f, 底孔 Ø%.1f x %.1f" % (
+        P["nut_pad_w"], P["nut_pad_h"], P["boss_z0"], P["boss_z1"], P["nut_hole_d"], P["nut_hole_dp"]))
 
     # 2.7 屏幕窗口
     wwin = P["scr_w"] + 2 * P["win_clr"]

@@ -89,16 +89,16 @@ def run(_context):
         print("  %-26s %8d bytes" % (name, os.path.getsize(path)))
 
     # ---- 3. 主图 ----
-    shot("01_hero_iso", V.IsoTopRightViewOrientation, ALL, 185)
-    shot("02_iso_back", V.IsoBottomLeftViewOrientation, ALL, 185)
+    shot("01_hero_iso", V.IsoTopRightViewOrientation, ALL, 192)
+    shot("02_iso_back", V.IsoBottomLeftViewOrientation, ALL, 192)
     # 正/背视图用竖版画幅: 机身是 73.3x136.3 的竖长方形, 横版画幅会在左右浪费大量白边。
     # viewExtents = 画幅宽度, 取 92 mm → 纵向 92*1400/900 = 143 mm, 裹住 136.3 mm 机身留 3 mm 边。
-    shot("03_front", V.FrontViewOrientation, ALL, 92, up=(0, 1, 0), w=900, h=1400)
-    shot("04_back", V.BackViewOrientation, ALL, 92, up=(0, 1, 0), w=900, h=1400)
-    shot("05_back_shell_inside", V.IsoTopLeftViewOrientation, BK, 172)
-    shot("06_back_shell_outside", V.IsoBottomRightViewOrientation, BK, 172)
-    shot("07_front_frame_outside", V.IsoBottomRightViewOrientation, FR, 165)
-    shot("08_front_frame_inside", V.IsoTopLeftViewOrientation, FR, 165)
+    shot("03_front", V.FrontViewOrientation, ALL, 96, up=(0, 1, 0), w=900, h=1400)
+    shot("04_back", V.BackViewOrientation, ALL, 96, up=(0, 1, 0), w=900, h=1400)
+    shot("05_back_shell_inside", V.IsoTopLeftViewOrientation, BK, 178)
+    shot("06_back_shell_outside", V.IsoBottomRightViewOrientation, BK, 178)
+    shot("07_front_frame_outside", V.IsoBottomRightViewOrientation, FR, 172)
+    shot("08_front_frame_inside", V.IsoTopLeftViewOrientation, FR, 172)
 
     def shot_explicit(name, eye_mm, tgt_mm, show, extents_mm, up=(0, 0, 1),
                       w=1600, h=1200):
@@ -142,8 +142,8 @@ def run(_context):
     m = adsk.core.Matrix3D.create()
     m.translation = adsk.core.Vector3D.create(0, 0, 8.0 * MM)
     occ["X4_front_frame"].transform = m
-    shot("11_exploded_iso", V.IsoTopRightViewOrientation, ALL, 200)
-    shot("12_exploded_back", V.IsoBottomLeftViewOrientation, ALL, 200)
+    shot("11_exploded_iso", V.IsoTopRightViewOrientation, ALL, 205)
+    shot("12_exploded_back", V.IsoBottomLeftViewOrientation, ALL, 205)
     occ["X4_front_frame"].transform = adsk.core.Matrix3D.create()
 
     # ---- 7. 还原 ----
