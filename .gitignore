@@ -28,3 +28,13 @@ desktop.ini
 
 # 旧的调试渲染（已被 docs/images/ 取代）
 shots/
+
+# 临时调试脚本 / 中间产物（不入库）
+.tmp_dev/
+.tmp_pdf/
+_*.ps1
+_shot.png
+
+# 临时截图与来料问题图
+docs/Screenshot *.png
+docs/backshell_problem.jpg

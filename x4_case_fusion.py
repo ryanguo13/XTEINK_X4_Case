@@ -15,22 +15,30 @@
 设计说明
 --------------------------------------------------------------------------
 两件套 (螺钉固定):
-  X4_back_shell   全包背壳: 背板 2.0 + 侧壁 1.8, 前口做 0.8 让位环,
+  X4_back_shell   全包背壳: 背板 2.0 + 侧壁 2.4, 前口做 1.2 让位环,
                   背面 4 个沉头孔, 前口面 4 个螺母柱让位腔
-  X4_front_frame  前框: 面板 1.2 + 0.7 裙边, 裙边内侧 0.35 定位筋,
-                  内侧 4 个 12 x 10 扁平凸台 (壁厚 >=3, 嵌 M3*4*3 螺母)
-  两者外侧轮廓齐平, 接缝落在侧壁; 定位筋只做对中 (0.02 间隙, 不再过盈),
-  夹紧完全由 4 颗 M3*6 从背面拧入的螺钉提供。
+  X4_front_frame  前框: 面板 1.2 + 1.1 裙边,
+                  内侧 4 个 14 x 14 扁平凸台 (孔周壁 5.2, 嵌 M3*4*3 螺母)
+  两者外侧轮廓齐平, 接缝落在侧壁; 无定位筋, XY 靠裙边内表面与让位环的
+  0.1 mm 径向间隙对中, 夹紧完全由 4 颗 M3*6 从背面拧入的螺钉提供。
 
 为什么上下要加长:
-  设备只有 114 mm 高, 螺纹柱 + 螺母孔在 Z 向要占 4.6 mm, 而原设计上下边框
+  设备只有 114 mm 高, 螺母柱 + 螺母孔在 Z 向要占 6.2 mm, 而原设计上下边框
   只有 2.15 mm 壁厚 (设备顶边到外形边)。直接在 2.15 里挖会让侧壁只剩 ~0.3,
-  所以改为上下加长: 上 +10.5 (设备顶边到外形顶边 2.15 -> 12.65),
-  下 +10.5 (设备底边到外形底边 2.15 -> 12.65),
+  所以改为上下加长: 上 +13.2 (设备顶边到外形顶边 2.15 -> 15.95),
+  下 +13.2 (设备底边到外形底边 2.15 -> 15.95),
   加长段的背壳正好是实心厚板, 天然可做螺钉肩台。
-  加长的真正约束是嘉立创代嵌要求: 螺母孔周围壁厚 >= 3 mm, 所以凸台做成
-  12 x 10 (最窄处 10/2 - 3.9/2 = 3.05 > 3.0); 再加让位间隙和定位筋槽,
-  上下边框带各要 12.65, 比原 2.15 各加 10.5。
+  加长的真正约束是嘉立创代嵌要求: 螺母孔安装面 >= 14 x 14 平面、孔周壁 >= 3 mm,
+  所以凸台做成 14 x 14 (孔周壁 (14 - 3.6)/2 = 5.2 > 3.0)。
+
+  上下加长量的推导 (全部是硬约束相加, 不能凭感觉取整):
+    外形半高 s_y1 = tub_hh + ext_top,  tub_hh = 57 + clr + wall = 59.75
+    (1) 凸台不能扎进设备: 凸台内边 >= 内腔边 57.35  ->  凸台中心 y = 64.35
+    (2) 背壳让位腔 = 凸台 + 0.4 单边余量  ->  让位腔外缘 71.75
+    (3) 让位腔外缘到前口让位面 (red_y1 = s_y1 - 1.2) 之间必须是实心筋,
+        不能 < 1 mm (这正是上次被退回的<1 mm 薄壁); 取 1.3 mm
+         ->  s_y1 = 71.75 + 1.3 + 1.2 = 74.25  ->  ext_top = 14.50
+    含前框面板后总长 2*74.25 = 148.5 mm (设备 114, 上下各多出 17.25)。
 
 风格: 方正工业风 —— 外形以直角为主, 只保留 3.0 mm 小圆角; 所有开孔避让保持利落,
       孔口不做倒角, 只做 0.5 外形圆角。
@@ -76,43 +84,40 @@ P = dict(
     dev_w=69.0, dev_h=114.0, dev_d=5.98, dev_cr=4.0,
 
     # ---------------- 壳体通用 ----------------
-    wall=1.8,            # 背壳侧壁厚
+    wall=2.4,            # 背壳侧壁厚 (嘉立创: 壁厚 >= 1 mm, 1.8 被判定偏薄)
     clr=0.35,            # 设备与内腔单边间隙
     back_t=2.0,          # 背板厚
-    frame_t=1.2,         # 前框面板厚
+    frame_t=2.0,         # 前框面板厚 (1.2 时按键沉台 0.6 之下只剩 0.59 mm 薄壁)
     outer_cr=3.0,        # 外形平面内圆角 (方正化: 6.8 -> 3.0)
     inner_cr=3.0,        # 内腔圆角     (方正化: 5.0 -> 3.0, 角部壁厚 2.13 / 设备间隙 0.56)
 
     # ---------------- 上下加长 (给螺钉/螺母腾位置) ----------------
-    ext_top=10.50,       # (*) 上边框 2.15 -> 12.65 (受 12x10 凸台 + 3mm 壁厚约束)
-    ext_bot=10.50,       # (*) 下边框 2.15 -> 12.65 (与上对称, 螺钉 Y 才对称)
+    ext_top=14.50,       # (*) 上边框 2.15 -> 17.25 (见文档头部的推导链)
+    ext_bot=14.50,       # (*) 下边框 2.15 -> 17.25 (与上对称, 螺钉 Y 才对称)
 
-    # ---------------- 两件套定位 (卡筋只对中, 不夹紧) ----------------
-    rebate_d=0.80,       # 背壳前口让位(前口环壁剩下的厚度 = wall - rebate_d = 1.0)
-    skirt_gap=0.10,      # 裙边内表面与让位面径向间隙
-    skirt_h=1.20,        # 裙边高度
-    ridge_p=0.35,        # 裙边定位筋径向凸出
-    ridge_clear=0.02,    # 定位筋与卡槽的单边间隙 (去掉原来的 0.10 过盈)
-    ridge_z0=5.30,       # 定位筋/卡槽 Z 起
-    ridge_z1=5.70,       # 定位筋/卡槽 Z 止
+    # ---------------- 两件套定位 (搭接缝, 无定位筋) ----------------
+    rebate_d=1.20,       # 背壳前口让位(前口环壁剩下的厚度 = wall - rebate_d = 1.2)
+    skirt_gap=0.10,      # 裙边内表面与让位面径向间隙 (= 唯一对中量)
+    skirt_h=1.30,        # 裙边高度 (覆盖 1.2 让位 + 0.1)
 
     # ---------------- 4 x M3 螺钉 (从背面进, 前框嵌热熔螺母) ----------------
     #   螺钉穿过背壳加长段 -> 前框螺母柱 -> 热熔螺母; 背壳上只做通孔+沉头
     screw_x=21.50,       # 螺钉 X 位置 (±)
-    screw_y_top=62.65,   # 上 2 颗 Y (凸台 10 高, 下缘 57.65 距内腔 0.30)
-    screw_y_bot=-62.65,  # 下 2 颗 Y (与上对称)
+    screw_y_top=64.35,   # 上 2 颗 Y (凸台 14 高, 内缘 57.35 与内腔齐平, 不扎设备)
+    screw_y_bot=-64.35,  # 下 2 颗 Y (与上对称)
     screw_d=3.40,        # M3 通孔
     screw_head_d=6.20,   # 沉头孔径 (M3 圆头 Ø5.7 / 内六角 Ø5.5)
-    screw_head_dp=1.80,  # 沉头深度 (M3 圆头高 1.65, 留 0.15 余量)
-    nut_pad_w=12.00,     # 螺母凸台宽 X (嘉立创代嵌: 孔周壁厚 >= 3)
-    nut_pad_h=10.00,     # 螺母凸台高 Y (最窄处 5.00 - 1.95 = 3.05 mm)
+    screw_head_dp=1.65,  # 沉头深度 (M3 圆头高 1.65, 齐平)
+    nut_pad_w=14.00,     # 螺母凸台宽 X (嘉立创代嵌: 安装面 >= 14 x 14 平面)
+    nut_pad_h=14.00,     # 螺母凸台高 Y (孔周壁 (14-3.6)/2 = 5.20 mm)
     nut_pad_cr=2.00,     # 凸台平面圆角
-    nut_pad_margin=0.30, # 背壳让位腔比凸台大的单边余量
-    nut_hole_d=3.90,     # 螺母底孔 (嘉立创代嵌口径; 自嵌热熔用 3.80)
-    nut_hole_dp=4.00,    # 底孔深 (顶壁 1.00)
-    boss_z0=1.90,        # 螺母柱底面 Z (柱体朝下伸进背壳让位腔)
-    boss_z1=6.90,        # 螺母柱顶面 Z (扎进面板 0.92, 打印时从面板往上长)
-    relief_floor=1.70,   # 背壳让位腔底 Z (比柱底再低 0.2)
+    nut_pad_margin=0.40, # 背壳让位腔比凸台大的单边余量
+    nut_hole_d=3.60,     # 螺母底孔 Ø (嘉立创 M3*4*3 官方口径 3.6, 孔深 5)
+    nut_hole_dp=5.00,    # 底孔深 (嘉立创 M3*4*3 官方 5.0; 浅了螺母会凸出,
+                         #   孔顶 = boss_z0+5.0 = 6.0, 距凸台顶 7.98 还有 1.98 顶壁)
+    boss_z0=1.00,        # 螺母柱底面 Z (柱体朝下伸进背壳让位腔)
+    boss_z1=7.98,        # 螺母柱顶面 Z = zf + frame_t (与面板正面齐平)
+    relief_floor=0.80,   # 背壳让位腔底 Z (比柱底再低 0.2)
 
     # ---------------- 屏幕窗口 ----------------
     scr_w=55.4, scr_h=92.4,     # 4.3" 480x800 @ ~220ppi 有效显示区
@@ -122,14 +127,19 @@ P = dict(
     # ---------------- 正面两条胶囊按键 (直接镂空) ----------------
     fk_yc=4.40,          # (*) 按键轴线距设备底边
     fk1_len=24.0, fk2_len=21.9, fk_gap=1.5,
-    fk_h=2.60, fk_clr=0.40, fk_cr=1.30,   # clr 收紧到 0.4 -> 两键间留 0.7 竖筋
+    fk_h=2.60, fk_clr=0.20, fk_cr=1.30,   # clr 0.20 -> 两键间留 1.10 竖筋 (嘉立创壁厚)
 
     # ---------------- +X 侧 ----------------
     pwr_y=33.3, pwr_h=9.2, pwr_kh=2.60,      # (*) 电源键
     pg_y=3.4,   pg_h=19.3, pg_kh=2.60,       # (*) 翻页摇杆
-    tf_y=-14.0, tf_h=14.0, tf_kh=1.80,       # (*) TF 卡槽
+    tf_y=-14.40, tf_h=14.0, tf_kh=1.80,      # (*) TF 卡槽
+    #   ↑ 槽上端 (-7.40) 与翻页摇杆孔下端 (pg_y-pg_h/2 = -6.25) 之间必须 >=1 mm,
+    #     否则两孔之间只剩 0.75 的窄筋 (实测 0.74 mm, 嘉立创判薄壁)
+    
     rst_y=-27.0, rst_d=1.6,                  # (*) RESET 针孔
-    side_relief=0.60,                        # 按键处外表面浅凹台深度
+    side_relief=1.20,                        # 按键处外表面浅凹台深度
+    #   ↑ 必须 = rebate_d: 否则键孔上沿(4.29)到前口让位面(4.68)之间会剩
+    #     0.60 宽 x 0.39 高的悬挑台阶 (实测 0.38 mm, 嘉立创判薄壁)
     relief_pad_y=2.5, relief_pad_z=0.8,
 
     # ---------------- -X 侧 (设备左侧长边, 集中在下端) ----------------
@@ -140,7 +150,9 @@ P = dict(
 
     # ---------------- 背面 ----------------
     #   加长后外形中心下移 2.0 (s_cy), 装饰面板与磁吸环跟着走, 上下留边才对称
-    panel_w=62.6, panel_h=116.0, panel_cr=1.5, panel_depth=0.50,
+    panel_w=62.6, panel_h=120.0, panel_cr=1.5, panel_depth=0.50,
+    #   ↑ panel_h 上限 = 2 x (screw_y_top - screw_head_d/2 - 1.25) = 120,
+    #     再大就让 4 个沉头孔穿到面板边上了; 上下多出来的边就是"沉头孔带"。
     ring_od=60.0, ring_id=57.6, ring_depth=0.35,     # 磁吸环 (φ60 环, 2.4 宽)
 
     # ---------------- 正面按键沉台 (让按键浅陷 0.6, 保证按键凸起时仍可按) ----------------
@@ -408,29 +420,19 @@ def run(_context: str):
     red_y1 = s_y1 - P["rebate_d"]
     red_y0 = s_y0 + P["rebate_d"]
     red_cr = P["outer_cr"] - P["rebate_d"]
-    z0 = zf - P["skirt_h"]                        # 裙边/定位筋 起始 Z
+    z0 = zf - P["skirt_h"]                        # 裙边起始 Z
     in_hw = red_hw + P["skirt_gap"]               # 裙边内表面
     in_hh = red_hh + P["skirt_gap"]
     in_y1 = red_y1 + P["skirt_gap"]
     in_y0 = red_y0 - P["skirt_gap"]
     in_cr = red_cr + P["skirt_gap"]
-    tip_hw = in_hw - P["ridge_p"]                 # 定位筋内顶点
-    tip_y1 = in_y1 - P["ridge_p"]
-    tip_y0 = in_y0 + P["ridge_p"]
-    # 槽深: 筋尖在 in_hw-ridge_p, 槽底在 red_hw-groove_d, 两者留 ridge_clear
-    #   间隙 = (in_hw-ridge_p) - (red_hw-groove_d) = groove_d - ridge_p + skirt_gap
-    #   所以 groove_d = ridge_p - skirt_gap + ridge_clear
-    groove_d = P["ridge_p"] - P["skirt_gap"] + P["ridge_clear"]
-    groove_hw = red_hw - groove_d                 # 卡槽底 (径向)
-    groove_y1 = red_y1 - groove_d
-    groove_y0 = red_y0 + groove_d
 
     print("")
     print("  外形    %.2f x %.2f x %.2f mm  (Y %.2f .. %.2f)" % (
         2 * tub_hw, s_y1 - s_y0, P["back_t"] + D + P["frame_t"], s_y0, s_y1))
     print("  内腔    %.2f x %.2f x %.2f mm" % (2 * cav_hw, 2 * cav_hh, D))
-    print("  前口环壁 %.2f | 裙边厚 %.2f | 定位筋槽深 %.2f / 间隙 %.2f | 磁环上方余料 %.2f" % (
-        red_hw - cav_hw, tub_hw - in_hw, groove_d, P["ridge_clear"],
+    print("  前口环壁 %.2f | 裙边厚 %.2f | 让位深 %.2f | 磁环上方余料 %.2f" % (
+        red_hw - cav_hw, tub_hw - in_hw, zf - z0,
         P["back_t"] - P["panel_depth"] - P["ring_depth"]))
     print("  平面圆角 外 %.2f / 内 %.2f (角部壁厚 %.2f, 角部设备间隙 %.2f)" % (
         P["outer_cr"], P["inner_cr"],
@@ -467,13 +469,9 @@ def run(_context: str):
                     red_hw, red_y0, red_y1, red_cr, "front_rebate")
     extrude(back, pr, CUT, FAR, True, "front_rebate", target=body)
 
-    # 1.5 定位筋环槽: 让位面再多吃 groove_d, Z: ridge_z0..ridge_z1
-    #     槽深 = ridge_p - skirt_gap - ridge_clear -> 与筋条单边留 0.02, 不再过盈
-    pl = off_plane(back, back.xYConstructionPlane, P["ridge_z0"])
-    sk = back.sketches.add(pl)
-    pr = ring2_prof(sk, tub_hw + 2, s_y0 - 2, s_y1 + 2, P["outer_cr"] + 0.5,
-                    groove_hw, groove_y0, groove_y1, red_cr - groove_d, "align_groove")
-    extrude(back, pr, CUT, P["ridge_z1"] - P["ridge_z0"], True, "align_groove", target=body)
+    # 1.5 (已删除) 定位筋环槽 —— 嘉立创指出环槽把前口环壁切到 0.73,
+    #     且槽底圆角与外轮廓相切处只剩 0.1~0.43 的楔形薄壁。改为纯搭接缝,
+    #     XY 对中交给"裙边内表面 ↔ 让位面"的 0.1 mm 径向间隙, 夹紧靠 4 颗螺钉。
 
     # 1.6 背面装饰面板内凹 (自外底面往上 panel_depth), 中心跟外形中心 s_cy 走
     pl = off_plane(back, back.xYConstructionPlane, -P["back_t"])
@@ -524,6 +522,22 @@ def run(_context: str):
             pr = pick_profile(sk, rrect_area(ya0, za0, ya1, za1, arc_r), label)
         extrude(back, pr, CUT, dist, sign > 0, label, target=body)
 
+    def port_relief(yc, ylen, zlo, sign, label, pad_y=0.60):
+        """端口上沿到前口让位面 z0 之间只剩 0.79~0.89 的薄檐:
+           4.68 - 孔顶(TF 3.89 / RESET 3.79 / LED 3.79); 且 USB-C(4.69) 与
+           挂绳孔(4.79) 的圆角与该面相交成刀口 (实测 0.74~0.89 / 0.02)。
+           做法同 pwr/pg: 端口外表面先铣一条深 = side_relief 的凹台,
+           顶面正好落在 z0, 端口上方只剩 1.20 (= wall - side_relief) 厚。"""
+        plane = off_plane(back, back.yZConstructionPlane,
+                          sign * (tub_hw - P["side_relief"]))
+        sk = back.sketches.add(plane)
+        pt = side_map(sk, sign * (tub_hw - P["side_relief"]))
+        ya0, ya1 = yc - ylen / 2.0 - pad_y, yc + ylen / 2.0 + pad_y
+        za0, za1 = zlo, z0
+        rrect_g(sk, pt, ya0, za0, ya1, za1, 0.0)
+        pr = pick_profile(sk, rrect_area(ya0, za0, ya1, za1, 0.0), label)
+        extrude(back, pr, CUT, P["side_relief"] + 3.0, sign > 0, label, target=body)
+
     # +X: 电源键 / 翻页摇杆 —— 先铣 0.6 浅凹台, 再开贯穿孔
     for yc, yl, kh, lab in ((P["pwr_y"], P["pwr_h"], P["pwr_kh"], "pwr"),
                             (P["pg_y"], P["pg_h"], P["pg_kh"], "page")):
@@ -531,11 +545,18 @@ def run(_context: str):
              lab + "_relief", arc_r=0.0, depth=P["side_relief"])
         side(yc, yl, kh, 1, lab + "_hole")
     # +X: TF 卡槽 / RESET
+    port_relief(P["tf_y"], P["tf_h"], zc - P["tf_kh"] / 2.0, 1, "tf_relief")
     side(P["tf_y"], P["tf_h"], P["tf_kh"], 1, "tf_slot")
+    port_relief(P["rst_y"], P["rst_d"], zc - P["rst_d"] / 2.0, 1, "rst_relief")
     side(P["rst_y"], 0, 0, 1, "reset_hole", circle_d=P["rst_d"])
     # -X: USB-C / LED / 挂绳孔
+    port_relief(P["usbc_y"], P["usbc_w"], zc - P["usbc_h"] / 2.0, -1, "usbc_relief", pad_y=0.45)
     side(P["usbc_y"], P["usbc_w"], P["usbc_h"], -1, "usbc")
+    #   ↑ LED 凹台在 -41.25..-43.70, 与 USB-C 凹台之间必须留 >=1.2 的筋;
+    #     默认 0.60 余量时两凹台只隔 1.00 (实测 0.99 mm, 被判薄壁)
+    port_relief(P["led_y"], P["led_d"], zc - P["led_d"] / 2.0, -1, "led_relief", pad_y=0.45)
     side(P["led_y"], 0, 0, -1, "led_hole", circle_d=P["led_d"])
+    port_relief(P["lany_y"], P["lany_w"], zc - P["lany_h"] / 2.0, -1, "lany_relief")
     side(P["lany_y"], P["lany_w"], P["lany_h"], -1, "lanyard", arc_r=P["lany_cr"])
 
     # 1.10 4 个螺钉孔 (从背面进): 沉头 + 通孔
@@ -558,8 +579,9 @@ def run(_context: str):
             bw = P["nut_pad_w"] / 2.0 + P["nut_pad_margin"]
             bh_lo = P["nut_pad_h"] / 2.0 + P["nut_pad_margin"] + 0.20   # 向下多挖 0.2, 与内腔连成一体
             bh_hi = P["nut_pad_h"] / 2.0 + P["nut_pad_margin"]
-            pr = rr_prof(sk, xc - bw, yc - bh_lo, xc + bw, yc + bh_hi,
-                         P["nut_pad_cr"] + P["nut_pad_margin"], "boss_relief")
+            # 让位腔必须是直角: 带圆角时 R2.4 弧会以极浅角度切进内腔壁
+            # (Y=±57.35), 留下收敛到零的楔形料, 实测 0.04 mm
+            pr = rect_prof(sk, xc - bw, yc - bh_lo, xc + bw, yc + bh_hi, "boss_relief")
             extrude(back, pr, CUT, zf - P["relief_floor"], False, "boss_relief", target=body)
     print("  螺钉孔 4 处: X ±%.2f  Y %.2f / %.2f" % (
         P["screw_x"], P["screw_y_top"], P["screw_y_bot"]))
@@ -578,18 +600,11 @@ def run(_context: str):
     rrect(sk, -tub_hw, s_y0, tub_hw, s_y1, P["outer_cr"])
     skirt = extrude(fr, pick_profile(sk, tag="skirt"), NEW, P["skirt_h"], True, "skirt").bodies.item(0)
 
-    # 2.2 裙边内腔: 定位筋带以外全掏空
+    # 2.2 裙边内腔: 全高掏空 (搭接缝, 无定位筋)
     #     target=skirt: 否则切削会越界咬到背壳前口环壁 (见 extrude() 注释)
-    for zlo, zhi, lab in ((z0, P["ridge_z0"], "skirt_lo"), (P["ridge_z1"], zf, "skirt_hi")):
-        sk = fr.sketches.add(off_plane(fr, fr.xYConstructionPlane, zlo))
-        rrect(sk, -in_hw, in_y0, in_hw, in_y1, in_cr)
-        extrude(fr, pick_profile(sk, tag=lab), CUT, zhi - zlo, True, lab, target=skirt)
-
-    # 2.3 定位筋带: 只留 tip..in 一圈
-    sk = fr.sketches.add(off_plane(fr, fr.xYConstructionPlane, P["ridge_z0"]))
-    rrect(sk, -tip_hw, tip_y0, tip_hw, tip_y1, in_cr - P["ridge_p"])
-    extrude(fr, pick_profile(sk, tag="ridge_band"), CUT, P["ridge_z1"] - P["ridge_z0"], True,
-            "ridge_band", target=skirt)
+    sk = fr.sketches.add(off_plane(fr, fr.xYConstructionPlane, z0))
+    rrect(sk, -in_hw, in_y0, in_hw, in_y1, in_cr)
+    extrude(fr, pick_profile(sk, tag="skirt_cav"), CUT, P["skirt_h"], True, "skirt_cav", target=skirt)
 
     # 2.4 面板 Z: zf..zf+frame_t, 与裙边并成一个实体
     sk = fr.sketches.add(off_plane(fr, fr.xYConstructionPlane, zf))
@@ -602,9 +617,9 @@ def run(_context: str):
     # 2.5 外顶面整圈倒圆
     fillet_z_loop(fr, plate, zf + P["frame_t"], P["frame_top_fillet"], "frame_top")
 
-    # 2.6 4 个螺母凸台 (12 x 10 扁平): 从面板向下伸进背壳让位腔, 嵌 M3*4*3 螺母
-    #     凸台底到 1.9 是因为背壳在那里已经挖空 (relief_floor=1.7), 再多就顶到背板
-    #     12 x 10 是为了满足嘉立创代嵌的孔周壁厚 >= 3 mm
+    # 2.6 4 个螺母凸台 (14 x 14 平面): 从面板向下伸进背壳让位腔, 嵌 M3*4*3 螺母
+    #     凸台底 boss_z0=1.0 在背壳让位腔 (relief_floor=0.8) 上方 0.2, 不顶背板
+    #     14 x 14 是嘉立创代嵌要求的 "安装面 >= 14 x 14 平面" (孔周壁 5.2 mm)
     nw, nh = P["nut_pad_w"] / 2.0, P["nut_pad_h"] / 2.0
     for sx in (-1, 1):
         for yc in (P["screw_y_top"], P["screw_y_bot"]):
